@@ -67,6 +67,12 @@ body {
   margin: 0 auto;
   display: flex;
   justify-content: center;
+  transition: opacity 1s ease, filter 1s ease;
+}
+
+.page.submerged {
+  opacity: 0.75;
+  filter: blur(1px);
 }
 
 .content-wrapper {
@@ -227,6 +233,73 @@ body {
     left: var(--target-x);
     top: var(--target-y);
     transform: translate(-50%, -50%) scale(0.5) rotate(540deg);
+  }
+}
+
+#water-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 999;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.wave {
+  width: 100%;
+  height: 20vh;
+  flex-shrink: 0;
+  animation: waveScroll 8s linear infinite;
+}
+
+.wave-1 {
+  animation-delay: 0s;
+}
+
+.wave-2 {
+  animation-delay: -2s;
+}
+
+.wave-3 {
+  animation-delay: -4s;
+}
+
+@keyframes waveScroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(600px);
+  }
+}
+
+#water-container.water-rising {
+  animation: waterRise 1s ease-out forwards;
+}
+
+#water-container.water-receding {
+  animation: waterRecede 1s ease-in forwards;
+}
+
+@keyframes waterRise {
+  from {
+    transform: translateY(100vh);
+  }
+  to {
+    transform: translateY(30vh);
+  }
+}
+
+@keyframes waterRecede {
+  from {
+    transform: translateY(30vh);
+  }
+  to {
+    transform: translateY(100vh);
   }
 }
 
