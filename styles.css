@@ -183,6 +183,53 @@ body {
   text-underline-offset: 3px;
 }
 
+.interactive-opens {
+  cursor: pointer;
+  position: relative;
+  display: inline-block;
+  transition: transform 0.1s ease;
+}
+
+.interactive-opens:hover {
+  transform: scale(1.05);
+}
+
+.emoji-burst {
+  position: fixed;
+  font-size: 32px;
+  pointer-events: none;
+  z-index: 1000;
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(0);
+}
+
+.emoji-burst.animate {
+  animation: emojiBurstOrbit 1.2s ease-out forwards;
+}
+
+@keyframes emojiBurstOrbit {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0) rotate(0deg);
+  }
+  20% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.2) rotate(180deg);
+  }
+  50% {
+    opacity: 1;
+    left: var(--target-x);
+    top: var(--target-y);
+    transform: translate(-50%, -50%) scale(1) rotate(360deg);
+  }
+  100% {
+    opacity: 0;
+    left: var(--target-x);
+    top: var(--target-y);
+    transform: translate(-50%, -50%) scale(0.5) rotate(540deg);
+  }
+}
+
 .footer {
   margin-top: 120px;
   margin-left: 107px;
