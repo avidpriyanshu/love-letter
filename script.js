@@ -79,6 +79,91 @@ function createWaveSVG() {
   return svg;
 }
 
+// Canvas Wave Animation (from CodePen nKKwQe)
+const canvasWave = document.getElementById('canvas-wave');
+let waveCtx, waveAnimationId, wavePoints = [], waveTick = 0;
+
+function initWaveCanvas() {
+  if (!canvasWave) return;
+  waveCtx = canvasWave.getContext('2d');
+  resizeWaveCanvas();
+  window.addEventListener('resize', resizeWaveCanvas);
+}
+
+function resizeWaveCanvas() {
+  if (!canvasWave) return;
+  canvasWave.width = window.innerWidth;
+  canvasWave.height = window.innerHeight;
+}
+
+function createWavePoints() {
+  const pointCount = 12;
+  const spacing = canvasWave.width / pointCount;
+  wavePoints = [];
+  
+  for (let i = 0; i < pointCount + 2; i++) {
+    const alt = (i % 2 === 0);
+    const offset = alt ? 60 : -60;
+    wavePoints.push({
+      x: i * spacing - spacing,
+      y: canvasWave.height / 2,
+      yStart: canvasWave.height / 2,
+      alt: alt,
+      offset: offset
+    });
+  }
+}
+
+function animateWave() {
+  if (!waveCtx || !canvasWave) return;
+  
+  waveCtx.clearRect(0, 0, canvasWave.width, canvasWave.height);
+  waveCtx.beginPath();
+  waveCtx.moveTo(wavePoints[0].x, wavePoints[0].y);
+  
+  const spacing = canvasWave.width / 12;
+  
+  for (let i = 1; i < wavePoints.length; i++) {
+    wavePoints[i].x += 4;
+    wavePoints[i].y = wavePoints[i].yStart + Math.sin(waveTick / 14) * -wavePoints[i].offset;
+    
+    if (wavePoints[i].x > canvasWave.width + spacing) {
+      wavePoints[i].x = -spacing;
+    }
+    
+    waveCtx.lineTo(wavePoints[i].x, wavePoints[i].y);
+  }
+  
+  waveCtx.strokeStyle = 'rgba(47, 120, 255, 0.6)';
+  waveCtx.lineWidth = 2;
+  waveCtx.stroke();
+  
+  waveTick++;
+  waveAnimationId = requestAnimationFrame(animateWave);
+}
+
+function startWaveAnimation() {
+  if (!canvasWave) return;
+  createWavePoints();
+  canvasWave.classList.add('active');
+  animateWave();
+}
+
+function stopWaveAnimation() {
+  if (waveAnimationId) {
+    cancelAnimationFrame(waveAnimationId);
+  }
+  if (canvasWave) {
+    canvasWave.classList.remove('active');
+    setTimeout(() => {
+      if (waveCtx && canvasWave) {
+        waveCtx.clearRect(0, 0, canvasWave.width, canvasWave.height);
+      }
+    }, 500);
+  }
+  waveTick = 0;
+}
+
 if (drowningElement) {
   drowningElement.addEventListener('mouseenter', function() {
     if (waterContainer.getAttribute('data-active') === 'true') {
@@ -87,8 +172,8 @@ if (drowningElement) {
 
     waterContainer.setAttribute('data-active', 'true');
     waterContainer.classList.add('water-rising');
+    startWaveAnimation();
 
-    // Create water layers
     for (let i = 0; i < 3; i++) {
       const wave = createWaveSVG();
       wave.classList.add(`wave-${i + 1}`);
@@ -98,7 +183,6 @@ if (drowningElement) {
       waterContainer.appendChild(wave);
     }
 
-    // Reduce page opacity and add blur
     document.querySelector('.page').classList.add('submerged');
   });
 
@@ -106,6 +190,7 @@ if (drowningElement) {
     waterContainer.classList.remove('water-rising');
     waterContainer.classList.add('water-receding');
     document.querySelector('.page').classList.remove('submerged');
+    stopWaveAnimation();
 
     setTimeout(() => {
       waterContainer.innerHTML = '';
@@ -114,3 +199,5 @@ if (drowningElement) {
     }, 1000);
   });
 }
+
+initWaveCanvas();
